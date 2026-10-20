@@ -1,0 +1,26 @@
+# Cryspike configuration example
+# Copy to cryspike.toml or ~/.config/cryspike/config.toml
+
+interval = 5
+gpu_threshold = 80.0
+cpu_idle = 10.0
+window = 5
+gpu = -1                    # -1 = all GPUs
+
+# Processes that should never trigger an alert (partial name match)
+exclude_processes = [
+    "chrome",
+    "firefox",
+    "code",
+    "blender",
+    "obs",
+    "steam",
+    "Xorg",
+    "gnome-shell",
+]
+
+# Optional Discord / Slack webhook
+# webhook_url = "https://discord.com/api/webhooks/..."
+
+# Optional log file
+# log_file = "/var/log/cryspike.log"
