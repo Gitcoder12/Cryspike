@@ -1,49 +1,58 @@
+"""Cryspike CLI entry point."""
+
+from __future__ import annotations
+
 import argparse
 import logging
 import sys
 import time
+from pathlib import Path
 
 from cryspike.monitor import NvidiaGPUMonitor
 from cryspike.detector import MiningDetector
+from cryspike.config import CryspikeConfig
+from cryspike.alerter import alert
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
+
+def setup_logging(log_file: str | None = None) -> None:
+    handlers = [logging.StreamHandler(sys.stdout)]
+    if log_file:
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        handlers.append(logging.FileHandler(log_file))
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=handlers,
+    )
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Cryspike: Detect silent crypto miners via GPU spikes during idle time."
+    p = argparse.ArgumentParser(
+        description="Cryspike – Detect silent crypto miners via GPU spikes during idle time."
     )
-    parser.add_argument("--interval", type=int, default=5, help="Seconds between checks (default: 5)")
-    parser.add_argument("--gpu-threshold", type=float, default=80.0, help="GPU %% considered high (default: 80)")
-    parser.add_argument("--cpu-idle", type=float, default=10.0, help="CPU %% considered idle (default: 10)")
-    parser.add_argument("--window", type=int, default=5, help="Consecutive suspicious readings to alert (default: 5)")
-    parser.add_argument("--gpu", type=int, default=-1, help="GPU index to monitor (-1 = all, default: all)")
-    return parser.parse_args()
-
-
-def print_alert(gpu_idx: int, gpu_util: float, processes: list) -> None:
-    print("\n" + "=" * 70)
-    print("⚠️  ALERT: SUSTAINED SUSPICIOUS GPU ACTIVITY DETECTED ⚠️")
-    print(f"GPU {gpu_idx} has been above threshold while system CPU is idle.")
-    print(f"Current GPU utilization: {gpu_util:.1f}%")
-    print("-" * 70)
-    if processes:
-        print("Processes currently using this GPU:")
-        for p in processes:
-            print(f"  PID {p['pid']:6d}  {p['name']:<30}  {p['used_memory_mb']} MB")
-    else:
-        print("  (No compute processes reported by NVML)")
-    print("=" * 70 + "\n")
+    p.add_argument("--interval", type=int, help="Seconds between checks")
+    p.add_argument("--gpu-threshold", type=float, help="GPU %% considered high")
+    p.add_argument("--cpu-idle", type=float, help="CPU %% considered idle")
+    p.add_argument("--window", type=int, help="Consecutive suspicious readings required")
+    p.add_argument("--gpu", type=int, help="GPU index (-1 = all)")
+    p.add_argument("--webhook", type=str, help="Discord/Slack webhook URL for alerts")
+    p.add_argument("--log-file", type=str, help="Also write logs to this file")
+    p.add_argument("--daemon", action="store_true", help="Run quietly (less console noise)")
+    p.add_argument("--version", action="version", version="Cryspike 0.3.0")
+    return p.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    logger.info("Starting Cryspike v0.2...")
+    cfg = CryspikeConfig.from_sources(args)
+
+    setup_logging(cfg.log_file)
+    logger = logging.getLogger(__name__)
+
+    if not cfg.daemon:
+        logger.info("Starting Cryspike v0.3...")
 
     monitor = NvidiaGPUMonitor()
     if not monitor.initialize():
@@ -55,25 +64,26 @@ def main() -> None:
         logger.error("No GPUs detected.")
         sys.exit(1)
 
-    # Which GPUs to watch
-    targets = [args.gpu] if args.gpu >= 0 else list(range(gpu_count))
-
+    targets = [cfg.gpu] if cfg.gpu >= 0 else list(range(gpu_count))
     detectors = {
         idx: MiningDetector(
-            gpu_threshold=args.gpu_threshold,
-            cpu_idle_threshold=args.cpu_idle,
-            window_size=args.window,
+            gpu_threshold=cfg.gpu_threshold,
+            cpu_idle_threshold=cfg.cpu_idle,
+            window_size=cfg.window,
         )
         for idx in targets
     }
 
     logger.info(f"Monitoring GPU(s): {targets}")
     logger.info(
-        f"Thresholds → GPU > {args.gpu_threshold}% | CPU < {args.cpu_idle}% | window={args.window}"
+        f"Thresholds → GPU ≥ {cfg.gpu_threshold}% | CPU ≤ {cfg.cpu_idle}% | window={cfg.window}"
     )
-    logger.info("Press Ctrl+C to stop.\n")
+    if cfg.webhook_url:
+        logger.info("Webhook alerts enabled.")
+    if not cfg.daemon:
+        logger.info("Press Ctrl+C to stop.\n")
 
-    # Prime psutil so first reading is accurate
+    # Prime psutil
     try:
         import psutil
         psutil.cpu_percent(interval=None)
@@ -86,13 +96,22 @@ def main() -> None:
                 util = monitor.get_utilization(idx)
                 if util is None:
                     continue
+
                 if detectors[idx].analyze_reading(util):
                     procs = monitor.get_processes(idx)
-                    print_alert(idx, util, procs)
-                    detectors[idx].reset()  # require a new full window for next alert
-            time.sleep(args.interval)
+                    alert(
+                        gpu_idx=idx,
+                        gpu_util=util,
+                        processes=procs,
+                        webhook_url=cfg.webhook_url,
+                    )
+                    detectors[idx].reset()
+
+            time.sleep(cfg.interval)
+
     except KeyboardInterrupt:
-        logger.info("\nStopped by user.")
+        if not cfg.daemon:
+            logger.info("\nStopped by user.")
     finally:
         monitor.shutdown()
         logger.info("Shutdown complete.")
