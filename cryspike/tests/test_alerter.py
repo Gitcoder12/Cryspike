@@ -36,6 +36,7 @@ def test_http_webhook_is_rejected_before_network_call(monkeypatch) -> None:
 def test_https_webhook_posts_json(monkeypatch) -> None:
     response = MagicMock()
     response.status = 204
+    response.__enter__.return_value = response
     calls = []
 
     def fake_urlopen(request, timeout):
