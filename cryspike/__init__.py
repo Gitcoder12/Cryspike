@@ -1,3 +1,3 @@
-"""Cryspike - Detect silent crypto miners via GPU power spikes during idle time."""
+"""Cryspike: a heuristic detector for suspicious GPU activity."""
 
-__version__ = "0.2.0"
+__version__ = "0.4.0"
