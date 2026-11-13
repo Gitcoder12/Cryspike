@@ -101,3 +101,16 @@ MIT
 ---
 
 **Author**: Dharavath Satvik ([@Gitcoder12](https://github.com/Gitcoder12))
+
+
+---
+
+## AI-maintained project notes (secondary — 2026-11-13)
+
+This section supplements the maintainer-authored README above; it does not replace or certify the original claims.
+
+- The current source tree, live data sources and tests are the implementation source of truth. Planned work is not shipped functionality.
+- Preserve original and user-provided data. Never silently substitute generated or placeholder records; label synthetic fixtures clearly.
+- Record source URLs, licences, collection dates, geographic scope, units, update cadence and confidence for public-data claims.
+- Verify execution, tests, links and public claims against the exact current commit before public use.
+- See [MODEL_AUDIT_ROUTER.md](MODEL_AUDIT_ROUTER.md) for independent audit and data-integrity rules.
