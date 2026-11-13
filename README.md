@@ -114,3 +114,8 @@ This section supplements the maintainer-authored README above; it does not repla
 - Record source URLs, licences, collection dates, geographic scope, units, update cadence and confidence for public-data claims.
 - Verify execution, tests, links and public claims against the exact current commit before public use.
 - See [MODEL_AUDIT_ROUTER.md](MODEL_AUDIT_ROUTER.md) for independent audit and data-integrity rules.
+
+
+### Proposed hardening clarifications — open PR, not yet merged (2026-11-13)
+
+[PR #1](https://github.com/Gitcoder12/Cryspike/pull/1) proposes stricter configuration validation, handling of missing/invalid sensor readings, more reliable process-exclusion semantics, HTTPS-only webhook checks, and expanded tests/CI. Its revised scope clarifies that high GPU use with low CPU is only a heuristic signal: it does not prove mining or malware, inspect GPU kernels/wallet/network activity, or remove malicious software. A detection should trigger independent process investigation, not an automatic malware verdict. Re-run CI on the exact latest PR head before considering it validated.
