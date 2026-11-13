@@ -102,23 +102,15 @@ MIT
 
 **Author**: Dharavath Satvik ([@Gitcoder12](https://github.com/Gitcoder12))
 
+
 ---
 
-## Project handbook
+## AI-maintained project notes (secondary — 2026-11-13)
 
-- [Activity log](ACTIVITY_LOG.md) · [Feature upgrade plan](FEATURE_UPGRADE_PLAN.md)
-- [Company and team fit](COMPANY_FIT.md) · [README explanation draft](README_ADDENDUM_DRAFT.md)
-- [README quality checklist](README_QUALITY_CHECKLIST.md)
-- [Contributing](CONTRIBUTING.md) · [Agent instructions](AGENTS.md) · [Agent skills](SKILLS.md)
+This section supplements the maintainer-authored README above; it does not replace or certify the original claims.
 
-## Understanding the project
-
-### In plain language
-
-A small monitor that looks for unusually high GPU use while the rest of the computer appears idle, then reports processes worth checking.
-
-### Technical and research view
-
-The program samples GPU and CPU usage repeatedly. If a GPU stays highly active while CPU use remains low for the configured number of checks, it reports the processes using that GPU so a person can investigate.
-
-For future work, see [FEATURE_UPGRADE_PLAN.md](FEATURE_UPGRADE_PLAN.md), [ACTIVITY_LOG.md](ACTIVITY_LOG.md), [COMPANY_FIT.md](COMPANY_FIT.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+- The current source tree, live data sources and tests are the implementation source of truth. Planned work is not shipped functionality.
+- Preserve original and user-provided data. Never silently substitute generated or placeholder records; label synthetic fixtures clearly.
+- Record source URLs, licences, collection dates, geographic scope, units, update cadence and confidence for public-data claims.
+- Verify execution, tests, links and public claims against the exact current commit before public use.
+- See [MODEL_AUDIT_ROUTER.md](MODEL_AUDIT_ROUTER.md) for independent audit and data-integrity rules.
