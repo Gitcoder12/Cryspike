@@ -101,3 +101,24 @@ MIT
 ---
 
 **Author**: Dharavath Satvik ([@Gitcoder12](https://github.com/Gitcoder12))
+
+---
+
+## Project handbook
+
+- [Activity log](ACTIVITY_LOG.md) · [Feature upgrade plan](FEATURE_UPGRADE_PLAN.md)
+- [Company and team fit](COMPANY_FIT.md) · [README explanation draft](README_ADDENDUM_DRAFT.md)
+- [README quality checklist](README_QUALITY_CHECKLIST.md)
+- [Contributing](CONTRIBUTING.md) · [Agent instructions](AGENTS.md) · [Agent skills](SKILLS.md)
+
+## Understanding the project
+
+### In plain language
+
+A small monitor that looks for unusually high GPU use while the rest of the computer appears idle, then reports processes worth checking.
+
+### Technical and research view
+
+The program samples GPU and CPU usage repeatedly. If a GPU stays highly active while CPU use remains low for the configured number of checks, it reports the processes using that GPU so a person can investigate.
+
+For future work, see [FEATURE_UPGRADE_PLAN.md](FEATURE_UPGRADE_PLAN.md), [ACTIVITY_LOG.md](ACTIVITY_LOG.md), [COMPANY_FIT.md](COMPANY_FIT.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
