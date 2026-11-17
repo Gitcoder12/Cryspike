@@ -119,3 +119,22 @@ This section supplements the maintainer-authored README above; it does not repla
 ### Proposed hardening clarifications — open PR, not yet merged (2026-11-13)
 
 [PR #1](https://github.com/Gitcoder12/Cryspike/pull/1) proposes stricter configuration validation, handling of missing/invalid sensor readings, more reliable process-exclusion semantics, HTTPS-only webhook checks, and expanded tests/CI. Its revised scope clarifies that high GPU use with low CPU is only a heuristic signal: it does not prove mining or malware, inspect GPU kernels/wallet/network activity, or remove malicious software. A detection should trigger independent process investigation, not an automatic malware verdict. Re-run CI on the exact latest PR head before considering it validated.
+
+---
+
+## Engineering Audit & Handover — 2026-11-17
+
+**Reviewed commit:** `2abfe57eb013cb66f4d1c4ae033e745d97b0c2b6` (`main`). Static inspection covered detector, NVML adapter, and detector tests; tests were not executed.
+
+### Confirmed findings
+- Detection is a heuristic based on sustained high GPU utilization while total CPU utilization is low. The detector's own documentation correctly states that this is a suspicious signal, not proof of malware.
+- The detector tests cover consecutive-window behavior, normal/busy CPU cases, missing GPU samples, and excluded-process handling. They do not establish real-world detection precision or recall.
+- GPU process visibility depends on NVML/driver support and permissions; an empty or unavailable process list must not be interpreted as proof that no process is active.
+- Exclusion matching uses substring patterns against process names, so overly broad exclusions can suppress relevant samples.
+
+### Next actions
+1. Evaluate on labelled benign workloads (games, rendering, AI inference, video encoding) and controlled mining samples; report false-positive/false-negative rates.
+2. Display sensor availability and process-list limitations clearly in every alert.
+3. Add tests for multi-GPU failures, permission-denied process lists, broad exclusions, and monitor lifecycle cleanup.
+
+**Verification status:** static source/test inspection only; no GPU hardware run, full tests, or detection benchmark was performed.
