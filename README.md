@@ -138,3 +138,10 @@ This section supplements the maintainer-authored README above; it does not repla
 3. Add tests for multi-GPU failures, permission-denied process lists, broad exclusions, and monitor lifecycle cleanup.
 
 **Verification status:** static source/test inspection only; no GPU hardware run, full tests, or detection benchmark was performed.
+
+---
+
+## Examples Used
+- Detecting sustained high GPU utilization while CPU utilization stays low
+- Comparing normal GPU workloads with suspicious utilization patterns
+- Alerting on repeated suspicious readings without declaring malware
