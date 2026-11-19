@@ -145,3 +145,27 @@ This section supplements the maintainer-authored README above; it does not repla
 - Detecting sustained high GPU utilization while CPU utilization stays low
 - Comparing normal GPU workloads with suspicious utilization patterns
 - Alerting on repeated suspicious readings without declaring malware
+
+
+---
+
+## Comparison with Existing Open-Source Projects
+
+Cryspike is documented as a lightweight heuristic monitor for suspicious GPU activity, using sustained high GPU utilization while system CPU usage is low as an alert signal. These tools provide adjacent host-monitoring and runtime-security references.
+
+| Project | Established focus | Relationship to Cryspike |
+|---|---|---|
+| [osquery](https://github.com/osquery/osquery) | SQL-based operating-system instrumentation and endpoint visibility | Much broader host telemetry and query framework; Cryspike focuses on a narrow GPU/CPU utilization heuristic. |
+| [Falco](https://github.com/falcosecurity/falco) | Runtime threat detection from system events | Deeper event-based runtime detection; Cryspike currently observes resource-usage patterns rather than syscall or behavioral telemetry. |
+| [Wazuh](https://github.com/wazuh/wazuh) | Endpoint security monitoring, detection and response | A full security platform with centralized collection and rules; Cryspike is a small local daemon/CLI with optional webhook alerts. |
+
+### Where Cryspike is different
+- **GPU-specific signal:** its documented detector focuses on sustained GPU load combined with low system CPU utilization.
+- **Small deployment footprint:** the tool is designed for local monitoring with NVIDIA NVML and psutil rather than a centralized agent fleet.
+- **Configurable consecutive-sample window:** the detector uses repeated readings to avoid alerting on a single transient spike.
+
+### Where established projects are stronger
+osquery, Falco and Wazuh provide broader host visibility, event correlation and mature response ecosystems. Cryspike's heuristic cannot prove cryptocurrency mining or malware; legitimate rendering, compute workloads and driver behavior can resemble the signal.
+
+### Evidence and safety limitations
+Evaluate false positives across games, rendering, machine learning and idle workloads, plus missed detections across known miner samples. Record GPU model, driver, sampling interval and process visibility limitations. Label alerts as suspicious resource patterns, not confirmed malware. This is a scope comparison, not a detection-accuracy benchmark.
