@@ -145,3 +145,9 @@ This section supplements the maintainer-authored README above; it does not repla
 - Detecting sustained high GPU utilization while CPU utilization stays low
 - Comparing normal GPU workloads with suspicious utilization patterns
 - Alerting on repeated suspicious readings without declaring malware
+
+---
+
+## Repository navigation
+
+[Alphabetical file index](FILE_INDEX.md)
